@@ -16,6 +16,8 @@ import FilterListIcon from "@material-ui/icons/FilterList";
 import TextFieldsIcon from "@material-ui/icons/TextFields";
 import ShortTextIcon from "@material-ui/icons/ShortText";
 import SearchIcon from "@material-ui/icons/Search";
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
+import { toast } from 'react-toastify';
 
 import "@fontsource/roboto";
 
@@ -49,25 +51,25 @@ const tableColumns = [
   },
   {
     field: "name",
-    editable: true,
+    editable: false,
     hide: false,
     width: 300,
   },
   {
     field: "dataPlan",
-    editable: true,
+    editable: false,
     hide: false,
     width: 300,
   },
   {
     field: "bandwith",
-    editable: true,
+    editable: false,
     hide: false,
     width: 200,
   },
   {
     field: "latency",
-    editable: true,
+    editable: false,
     hide: false,
     width: 200,
   },
@@ -108,28 +110,41 @@ export default function UserSubscription() {
   const [loading, setLoading] = React.useState(false);
 
   function requestSearch() {
-    getUser(1)
+    if(filterField && filterValue){
+      getUser(1)
+    }else{
+      getUser()
+      toast.error("Please enter data before search")
+    }
   }
 
   const handleSortModelChange = (newModel) => {
     setSortModel(newModel);
-    console.log(newModel);
+    getUser(null, newModel);
+    console.log("newModel chng: ",newModel);
   };
 
   React.useEffect(() => {
     getUser();
   }, []);
 
-  async function getUser(newPage = null) {
+  async function getUser(newPage = null, sortData=null, filterfld=null, filtervl=null) {
     try {
+      let sort = sortData || sortModel
+      let fieldToFilter = filterfld || filterField
+      let fldValue = filtervl || filterValue
+
       setLoading(true);
+      console.log("newModel: ",sort[0])
+      console.log("filterField", filterField)
       const response = await axios.get(
         `${BASE_URL}/users/subscription?page=${newPage || page}&&field=${
-          sortModel[0].field
-        }&&sort=${sortModel[0].sort}&&filterField=${filterField}&&filterValue=${filterValue}`
+          sort[0].field
+        }&&sort=${sort[0].sort == "asc" ? 1 : -1}&&filterField=${fieldToFilter}&&filterValue=${fldValue}`
       );
       if (response.data.data) {
-        console.log("response user: ", response.data);
+        console.log("response data subs: ", response.data);
+        console.log("sort user: ", sort[0].field == "asc" ? 1 : -1);
         setTotal(response.data.total);
         setPage(response.data.page);
         setRows(response.data.data);
@@ -140,6 +155,7 @@ export default function UserSubscription() {
       console.error(error);
     }
   }
+
 
   return (
     <div className={classes.margin}>
@@ -177,7 +193,6 @@ export default function UserSubscription() {
             </Grid>
           </Grid>
         </Grid>
-
         <Grid item sm={12} xs={12} md={4}>
           <Grid container spacing={1} alignItems="flex-end">
             <Grid item>
@@ -194,7 +209,7 @@ export default function UserSubscription() {
           </Grid>
         </Grid>
 
-        <Grid item sm={12} xs={12} md={4}>
+        <Grid item sm={12} xs={12} md={2}>
           <Button
             variant="contained"
             color="primary"

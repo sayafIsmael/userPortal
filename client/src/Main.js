@@ -33,6 +33,8 @@ function ResponsiveDrawer(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [portal, setPortal] = React.useState('User');
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -57,7 +59,7 @@ function ResponsiveDrawer(props) {
       <Divider />
       <List>
         {drawerItems.map((item, index) => (
-          <ListItem button key={index} component={Link} to to={item.href}>
+          <ListItem button key={index} component={Link} to to={item.href} onClick={()=> setPortal(item.title)}>
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.title} />
           </ListItem>
@@ -84,7 +86,7 @@ function ResponsiveDrawer(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            User Portal
+            {portal} Portal
           </Typography>
         </Toolbar>
       </AppBar>

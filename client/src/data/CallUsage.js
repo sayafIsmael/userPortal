@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import { BASE_URL } from "./../config";
+import axios from "axios";
+import { toast } from "react-toastify";
 import Grid from "@material-ui/core/Grid";
 import PropTypes from "prop-types";
 import { Typography, Container } from "@material-ui/core";
@@ -12,7 +15,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Paper from "@material-ui/core/Paper";
 import { DataGrid } from "@mui/x-data-grid";
-import SearchIcon from '@material-ui/icons/Search';
+import SearchIcon from "@material-ui/icons/Search";
 
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -67,30 +70,30 @@ const tableColumns = [
     hide: true,
   },
   {
-    editable: true,
+    editable: false,
     field: "name",
     hide: false,
     width: 250,
   },
   {
-    editable: true,
+    editable: false,
     field: "phone",
     hide: false,
     width: 250,
   },
   {
-    editable: true,
+    editable: false,
     field: "department",
     hide: false,
     width: 150,
   },
   {
-    editable: true,
+    editable: false,
     field: "extensionNumber",
     hide: false,
     width: 180,
   },
-  { editable: true, field: "duration", hide: false, width: 250 },
+  { editable: false, field: "duration", hide: false, width: 250 },
 ];
 
 export default function UserSubscription() {
@@ -103,33 +106,70 @@ export default function UserSubscription() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [filterField, setFilterField] = React.useState("");
   const [filterValue, setFilterValue] = React.useState(null);
+  const [total, setTotal] = useState(0);
+
   const [sortModel, setSortModel] = React.useState([
     { field: "name", sort: "asc" },
   ]);
   const [loading, setLoading] = React.useState(false);
 
-  const [rows, setRows] = React.useState([
-    createData("Cupcake", "Lorem Ipsum", 3.7, 67, "1:20:0"),
-    createData("Donut", "Lorem Ipsum", 25.0, 51, "1:20:0"),
-    createData("Eclair", "Lorem Ipsum", 16.0, 24, "1:20:0"),
-    createData("Frozen yoghurt", "Lorem Ipsum", 6.0, 24, "1:20:0"),
-    createData("Gingerbread", "Lorem Ipsum", 16.0, 49, "1:20:0"),
-    createData("Honeycomb", "Lorem Ipsum", 3.2, 87, "1:20:0"),
-    createData("Ice cream sandwich", "Lorem Ipsum", 9.0, 37, "1:20:0"),
-    createData("Jelly Bean", "Lorem Ipsum", 0.0, 94, "1:20:0"),
-    createData("KitKat", "Lorem Ipsum", 26.0, 65, "1:20:0"),
-    createData("Lollipop", "Lorem Ipsum", 0.2, 98, "1:20:0"),
-    createData("Marshmallow", "Lorem Ipsum", 0, 81, "1:20:0"),
-    createData("Nougat", "Lorem Ipsum", 19.0, 9, "1:20:0"),
-    createData("Oreo", "Lorem Ipsum", 18.0, 63, "1:20:0"),
-  ]);
+  const [rows, setRows] = React.useState([]);
 
-  const requestSearch = () => {};
+  const requestSearch = () => {
+    if (filterField && filterValue) {
+      getUser(1);
+    } else {
+      getUser();
+      toast.error("Please enter data before search");
+    }
+  };
 
   const handleSortModelChange = (newModel) => {
     setSortModel(newModel);
-    console.log(newModel);
+    getUser(null, newModel);
+    console.log("newModel chng: ", newModel);
   };
+
+  React.useEffect(() => {
+    getUser();
+  }, []);
+
+  async function getUser(
+    newPage = null,
+    sortData = null,
+    filterfld = null,
+    filtervl = null
+  ) {
+    try {
+      let sort = sortData || sortModel;
+      let fieldToFilter = filterfld || filterField;
+      let fldValue = filtervl || filterValue;
+
+      setLoading(true);
+      console.log("newModel: ", sort[0]);
+      console.log("filterField", filterField);
+      const response = await axios.get(
+        `${BASE_URL}/users/call-usage?page=${newPage || page}&&field=${
+          sort[0].field
+        }&&sort=${
+          sort[0].sort == "asc" ? 1 : -1
+        }&&filterField=${fieldToFilter}&&filterValue=${fldValue}`
+      );
+
+      console.log("response data call: ", response.data);
+
+      if (response.data.data) {
+        console.log("sort user: ", sort[0].field == "asc" ? 1 : -1);
+        setTotal(response.data.total);
+        setPage(response.data.page);
+        setRows(response.data.data);
+      }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
+  }
 
   return (
     <div className={classes.margin}>
@@ -200,20 +240,23 @@ export default function UserSubscription() {
       <Paper className={classes.paperBillingTable}>
         <div style={{ height: 400, width: "100%" }}>
           <DataGrid
-            rows={rows}
+            rows={[...rows]}
             columns={tableColumns}
             sortingMode="server"
             sortModel={sortModel}
             onSortModelChange={handleSortModelChange}
             pagination
-            pageSize={5}
+            pageSize={10}
             // rowsPerPageOptions={[5]}
-            rowCount={13}
+            rowCount={total}
             paginationMode="server"
             onPageChange={(newPage) => {
+              console.log(newPage);
               setPage(newPage);
+              getUser(newPage);
             }}
             page={page}
+            loading={loading}
             loading={loading}
           />
         </div>

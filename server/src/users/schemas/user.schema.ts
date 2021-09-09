@@ -27,15 +27,6 @@ export const UserSchema = new mongoose.Schema(
                 latency: Number,
             },
             required: false,
-        },
-        callUsage: {
-            type: {
-                phone: Number,
-                duration: Number,
-                department: String,
-                extensionNumber: String,
-            },
-            required: false,
         }
     },
     { versionKey: false },
