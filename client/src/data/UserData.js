@@ -48,21 +48,6 @@ const userCategories = [
   },
 ];
 
-const rows = [
-  createData(213123, "John", "cloud phone", "07/09/2021"),
-  createData(4565464565, "Michael", "installation", "07/09/2021"),
-  createData(43634634634, "William", "user subscription", "07/09/2021"),
-  createData(556546, "Richard", "cloud phone", "07/09/2021"),
-  createData(234234, "Joseph", "one time activation", "07/09/2021"),
-  createData(68678, "Thomas", "one year", "07/09/2021"),
-  createData(345345345, "Charles", "cloud phone", "07/09/2021"),
-  createData(675734534, "Christopher", "cloud phone", "07/09/2021"),
-  createData(5463453, "Lorem Ipsum", "cloud phone", "07/09/2021"),
-  createData(5465467, "Lorem Ipsum", "cloud phone", "07/09/2021"),
-  createData(123453453, "Lorem Ipsum", "cloud phone", "07/09/2021"),
-  createData(456546, "Lorem Ipsum", "cloud phone", "07/09/2021"),
-];
-
 const tableColumns = [
   {
     editable: false,
@@ -70,13 +55,13 @@ const tableColumns = [
     hide: true,
   },
   {
-    editable: true,
+    editable: false,
     field: "name",
     hide: false,
     width: 500,
   },
   {
-    editable: true,
+    editable: false,
     field: "category",
     hide: false,
     width: 500,
@@ -98,6 +83,7 @@ export default function UserData() {
   const [loading, setLoading] = React.useState(false);
 
   const classes = useStyles();
+  const token = localStorage.getItem("token");
 
   const handleSortModelChange = (newModel) => {
     setSortModel(newModel);
@@ -107,10 +93,14 @@ export default function UserData() {
   async function getUser(newPage = null) {
     try {
       setLoading(true);
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
       const response = await axios.get(
         `${BASE_URL}/users?page=${newPage || page}&&field=${
           sortModel[0].field
-        }&&sort=${sortModel[0].sort}`
+        }&&sort=${sortModel[0].sort}`,
+        {headers}
       );
       if (response.data.data) {
         console.log("response user: ", response.data);
@@ -128,8 +118,11 @@ export default function UserData() {
   function addUser() {
     if (name && category) {
       setLoadingCreate(true);
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
       axios
-        .post(BASE_URL + "/users", { name, category })
+        .post(BASE_URL + "/users", { name, category }, {headers})
         .then((response) => {
           console.log(response.data);
           if (response.data.success) {

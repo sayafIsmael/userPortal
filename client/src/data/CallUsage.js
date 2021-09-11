@@ -107,6 +107,7 @@ export default function UserSubscription() {
   const [filterField, setFilterField] = React.useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const [total, setTotal] = useState(0);
+  const token = localStorage.getItem("token");
 
   const [sortModel, setSortModel] = React.useState([
     { field: "name", sort: "asc" },
@@ -145,6 +146,10 @@ export default function UserSubscription() {
       let fieldToFilter = filterfld || filterField;
       let fldValue = filtervl || filterValue;
 
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       setLoading(true);
       console.log("newModel: ", sort[0]);
       console.log("filterField", filterField);
@@ -153,7 +158,7 @@ export default function UserSubscription() {
           sort[0].field
         }&&sort=${
           sort[0].sort == "asc" ? 1 : -1
-        }&&filterField=${fieldToFilter}&&filterValue=${fldValue}`
+        }&&filterField=${fieldToFilter}&&filterValue=${fldValue}`, {headers}
       );
 
       console.log("response data call: ", response.data);

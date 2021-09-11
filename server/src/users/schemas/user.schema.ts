@@ -6,6 +6,14 @@ export const UserSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        username: {
+            type: String,
+            required: false,
+        },
+        password: {
+            type: String,
+            required: false,
+        },
         category: {
             type: String,
             required: true,

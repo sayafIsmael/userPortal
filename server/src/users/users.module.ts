@@ -12,6 +12,7 @@ import { UsersController } from './users.controller';
     { name: 'CallUsage', schema: CallUsageSchema }
   ])],
   providers: [UsersService],
-  controllers: [UsersController]
+  controllers: [UsersController],
+  exports: [UsersService]
 })
 export class UsersModule { }

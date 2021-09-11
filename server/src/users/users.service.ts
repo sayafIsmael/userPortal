@@ -58,4 +58,8 @@ export class UsersService {
             return error
         }
     }
+
+    async findOne(username: string): Promise<User> {
+        return this.userModel.findOne({ username });
+      }
 }

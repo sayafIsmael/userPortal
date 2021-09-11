@@ -19,5 +19,6 @@ export interface User extends mongoose.Document {
     name: String;
     category: String;
     subscription: subscription;
-    callUsage: callUsage;
+    username?: String;
+    password?: String
 }

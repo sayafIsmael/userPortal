@@ -5,8 +5,10 @@ import {
     Body,
     Req,
     Param,
+    UseGuards
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { JwtAuthGuard } from './../auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -14,6 +16,7 @@ export class UsersController {
         private userService: UsersService,
     ) { }
 
+    @UseGuards(JwtAuthGuard)
     @Get()
     async getUsers(@Request() req) {
         let options = {
@@ -36,11 +39,13 @@ export class UsersController {
         };
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     async createUser(@Body() req) {
         return await this.userService.create(req)
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get('subscription')
     async getUsersSubscription(@Request() req) {
         let { filterField, filterValue, field, sort } = req.query;
@@ -110,11 +115,11 @@ export class UsersController {
         };
     }
 
-
+    @UseGuards(JwtAuthGuard)
     @Get('call-usage')
     async getUsersCallusage(@Request() req) {
         let { filterField, filterValue, field, sort } = req.query;
-        let search = {}
+        let search = {} 
         if (filterField == "name") {
             search['name'] = new RegExp(filterValue.toString(), 'i')
         } else if (filterField == "phone") {

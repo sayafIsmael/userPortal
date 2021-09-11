@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import PropTypes from "prop-types";
 import { Typography, Container } from "@material-ui/core";
@@ -16,8 +16,8 @@ import FilterListIcon from "@material-ui/icons/FilterList";
 import TextFieldsIcon from "@material-ui/icons/TextFields";
 import ShortTextIcon from "@material-ui/icons/ShortText";
 import SearchIcon from "@material-ui/icons/Search";
-import RotateLeftIcon from '@material-ui/icons/RotateLeft';
-import { toast } from 'react-toastify';
+import RotateLeftIcon from "@material-ui/icons/RotateLeft";
+import { toast } from "react-toastify";
 
 import "@fontsource/roboto";
 
@@ -96,6 +96,7 @@ export default function UserSubscription() {
   const classes = useStyles();
 
   const [rows, setRows] = React.useState([]);
+  const token = localStorage.getItem("token");
 
   const [sortModel, setSortModel] = React.useState([
     { field: "name", sort: "asc" },
@@ -110,37 +111,49 @@ export default function UserSubscription() {
   const [loading, setLoading] = React.useState(false);
 
   function requestSearch() {
-    if(filterField && filterValue){
-      getUser(1)
-    }else{
-      getUser()
-      toast.error("Please enter data before search")
+    if (filterField && filterValue) {
+      getUser(1);
+    } else {
+      getUser();
+      toast.error("Please enter data before search");
     }
   }
 
   const handleSortModelChange = (newModel) => {
     setSortModel(newModel);
     getUser(null, newModel);
-    console.log("newModel chng: ",newModel);
+    console.log("newModel chng: ", newModel);
   };
 
   React.useEffect(() => {
     getUser();
   }, []);
 
-  async function getUser(newPage = null, sortData=null, filterfld=null, filtervl=null) {
+  async function getUser(
+    newPage = null,
+    sortData = null,
+    filterfld = null,
+    filtervl = null
+  ) {
     try {
-      let sort = sortData || sortModel
-      let fieldToFilter = filterfld || filterField
-      let fldValue = filtervl || filterValue
+      let sort = sortData || sortModel;
+      let fieldToFilter = filterfld || filterField;
+      let fldValue = filtervl || filterValue;
 
       setLoading(true);
-      console.log("newModel: ",sort[0])
-      console.log("filterField", filterField)
+      console.log("newModel: ", sort[0]);
+      console.log("filterField", filterField);
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       const response = await axios.get(
         `${BASE_URL}/users/subscription?page=${newPage || page}&&field=${
           sort[0].field
-        }&&sort=${sort[0].sort == "asc" ? 1 : -1}&&filterField=${fieldToFilter}&&filterValue=${fldValue}`
+        }&&sort=${
+          sort[0].sort == "asc" ? 1 : -1
+        }&&filterField=${fieldToFilter}&&filterValue=${fldValue}`,
+        {headers}
       );
       if (response.data.data) {
         console.log("response data subs: ", response.data);
@@ -155,7 +168,6 @@ export default function UserSubscription() {
       console.error(error);
     }
   }
-
 
   return (
     <div className={classes.margin}>
